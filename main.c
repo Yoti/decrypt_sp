@@ -172,8 +172,8 @@ int Decrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 	//===================================================================================
 
 	tmp_ptr = buf+0x14;
-//	WriteFile("tmp_ptr.bin", tmp_ptr, 0x40);
-//	WriteFile("msp_id.bin", msp_id, 0x10);
+	//WriteFile("tmp_ptr.bin", tmp_ptr, 0x40);
+	//WriteFile("msp_id.bin", msp_id, 0x10);
 	for (i = 0; i < 0x10; i++) {
 		if (tmp_ptr[i] != msp_id[i]) {
 			delta = tmp_ptr[i] - msp_id[i];
@@ -182,7 +182,7 @@ int Decrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 		}
 	}
 
-//	WriteFile("buf_pre_memcpy.bin", buf, 0x300);
+	//WriteFile("buf_pre_memcpy.bin", buf, 0x300);
 	//memcpy(buf+0x30, buf+0x4, 0x80);
 	for (i = 0x7F; i >= 0; i--) {
 		buf[0x30+i] = buf[0x4+i];
@@ -191,8 +191,8 @@ int Decrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 	memcpy(buf+0x40, buf+0x30, 0x10);
 	memcpy(unk2, buf+0xd0, 0x80);
 
-//	WriteFile("buf_pre_kirk.bin", buf, 0x300);
-//	hexDump(unk2, 0x80);
+	//WriteFile("buf_pre_kirk.bin", buf, 0x300);
+	//hexDump(unk2, 0x80);
 
 	unsigned int *size_buf = (unsigned int*)(buf+0xb0);
 	unsigned int kirk1_predata_size = size_buf[1];
@@ -226,12 +226,12 @@ int Encrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 	ret = kirk_init();
 	if (ret != 0) return ret;
 
-	ret = kirk_CMD14(buf + kirk1_blob_offset, 0x20); //keys
+	ret = kirk_CMD14(buf + kirk1_blob_offset, 0x20); // keys
 	if (ret != 0) return ret;
 
-	*(unsigned int *)(buf + kirk1_blob_offset + 0x60) = 1; //cmd
-	*(unsigned int *)(buf + kirk1_blob_offset + 0x70) = kirk1_data_size; //data size
-	*(unsigned int *)(buf + kirk1_blob_offset + 0x74) = 0x80; //predata size
+	*(unsigned int *)(buf + kirk1_blob_offset + 0x60) = 1; // cmd
+	*(unsigned int *)(buf + kirk1_blob_offset + 0x70) = kirk1_data_size; // data size
+	*(unsigned int *)(buf + kirk1_blob_offset + 0x74) = 0x80; // predata size
 
 	memcpy(buf + kirk1_blob_offset + kirk1_header_size, unk2, 0x80);
 
@@ -270,11 +270,11 @@ int Encrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 	memset(kirk7_buf, 0, 0x80+0x14);
 	memcpy(kirk7_buf+0x14, msp_id, 0x10);
 	memcpy(kirk7_buf+0x24, key0, 0x70);
-	*(unsigned int *)(kirk7_buf) = 4; //mode encrypt
+	*(unsigned int *)(kirk7_buf) = 4; // mode encrypt
 	*(unsigned int *)(kirk7_buf + 4) = 0;
 	*(unsigned int *)(kirk7_buf + 8) = 0;
-	*(unsigned int *)(kirk7_buf + 0xC) = 1; //key slot
-	*(unsigned int *)(kirk7_buf + 0x10) = 0x80; //data size
+	*(unsigned int *)(kirk7_buf + 0xC) = 1; // key slot
+	*(unsigned int *)(kirk7_buf + 0x10) = 0x80; // data size
 
 	ret = kirk_CMD4(kirk7_buf, kirk7_buf, 0x80);
 	if (ret != 0) return ret;
@@ -292,11 +292,11 @@ int Encrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 
 	memset(kirk7_buf, 0, 0x80+0x14);
 	memcpy(kirk7_buf+0x14, buf+0x18, 0x80);
-	*(unsigned int *)(kirk7_buf) = 4; //mode encrypt
+	*(unsigned int *)(kirk7_buf) = 4; // mode encrypt
 	*(unsigned int *)(kirk7_buf + 4) = 0;
 	*(unsigned int *)(kirk7_buf + 8) = 0;
-	*(unsigned int *)(kirk7_buf + 0xC) = 0x41; //key slot
-	*(unsigned int *)(kirk7_buf + 0x10) = 0x80; //data size
+	*(unsigned int *)(kirk7_buf + 0xC) = 0x41; // key slot
+	*(unsigned int *)(kirk7_buf + 0x10) = 0x80; // data size
 
 	ret = kirk_CMD4(kirk7_buf, kirk7_buf, 0x80);
 	if (ret != 0) return ret;
@@ -304,7 +304,7 @@ int Encrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 	memcpy(buf+0x18, kirk7_buf+0x14, 0x80);
 	memcpy(header_p1+0x30, buf+0x18, 0x80);
 
-	ret = kirk_CMD14(header_p1 + 0x18, 0x18); //random pad
+	ret = kirk_CMD14(header_p1 + 0x18, 0x18); // random pad
 	if (ret != 0) return ret;
 
 	//===================================================================================
@@ -315,7 +315,7 @@ int Encrypt(unsigned char* buf, int size, unsigned char* msp_id, unsigned char* 
 	memset(kirk11_buf, 0, 0xAC+4);
 	memcpy(kirk11_buf + 0x18, header_p1+0x18, 0x98);
 	memcpy(kirk11_buf + 4, header_p2 + 0x6C, 0x14);
-	*(unsigned int *)(kirk11_buf) = 0xAC; //size
+	*(unsigned int *)(kirk11_buf) = 0xAC; // size
 
 	ret = kirk_CMD11(kirk11_buf, kirk11_buf, 0xAC);
 	if (ret != 0) return ret;
@@ -331,13 +331,21 @@ int DecryptFile(char *input, char *output) {
 
 	int outsize;
 
-	memset (buffer,0, sizeof(buffer));
+	memset(buffer, 0, sizeof(buffer));
 	int size = ReadFile(input, buffer, sizeof(buffer));
 
 	if (size < 0) {
 		printf("Error: cannot read %s.\n", input);
 		return -1;
 	}
+
+	// dump banner.bin
+	int fd = open("dec/banner.bin", O_RDONLY, 0);
+	if (fd < 0)
+		WriteFile("dec/banner.bin", buffer+0xD0, 0x80);
+	else
+		close(fd);
+	// ---------------
 
 	int res = Decrypt(buffer, size, ms_id, banner, &outsize);
 
@@ -360,7 +368,7 @@ int EncryptFile(char *input, char *output) {
 
 	int outsize;
 
-	memset (buffer,0, sizeof(buffer));
+	memset(buffer,0, sizeof(buffer));
 	int size = ReadFile(input, buffer+0x150, sizeof(buffer)-0x150);
 
 	if (size < 0) {
@@ -387,7 +395,7 @@ int EncryptFile(char *input, char *output) {
 char input[128], output[128];
 
 void DecryptDir(char *indir, char *outdir) {
-	printf("opening dir\n");
+	//printf("opening dir\n");
 	DIR * dfd;
 	dfd = opendir(indir);
 
@@ -402,7 +410,7 @@ void DecryptDir(char *indir, char *outdir) {
 
 			output[strlen(output)-4] = 0; // remove enc extension
 
-			if (de.d_name[0] != '.') {
+			if ((de.d_name[0] != '.') && (strcmp(de.d_name, "msid.bin"))) {
 				if (DecryptFile(input, output) != 0) {
 					//
 				} else {
@@ -416,7 +424,7 @@ void DecryptDir(char *indir, char *outdir) {
 }
 
 void EncryptDir(char *indir, char *outdir) {
-	printf("opening dir\n");
+	//printf("opening dir\n");
 	DIR * dfd;
 	dfd = opendir(indir);
 
@@ -429,7 +437,7 @@ void EncryptDir(char *indir, char *outdir) {
 			sprintf(input, "%s/%s", indir, de.d_name);
 			sprintf(output, "%s/%s.%s", outdir, de.d_name, "enc");
 
-			if (de.d_name[0] != '.') {
+			if ((de.d_name[0] != '.') && (strcmp(de.d_name, "msid.bin")) && (strcmp(de.d_name, "banner.bin"))) {
 				if (EncryptFile(input, output) != 0) {
 					//
 				} else {
@@ -442,8 +450,8 @@ void EncryptDir(char *indir, char *outdir) {
 	}
 }
 
-int GetMSID() {
-	int size = ReadFile("msid.bin", ms_id, sizeof(ms_id));
+int GetMSID(char*in_file) {
+	int size = ReadFile(in_file, ms_id, sizeof(ms_id));
 
 	if (size < 0) {
 		printf("Error: cannot read msid.bin.\n");
@@ -458,12 +466,12 @@ int GetMSID() {
 	return 0;
 }
 
-int GetBanner() {
-	int size = ReadFile("banner.bin", banner, sizeof(banner));
+int GetBanner(char*in_file) {
+	int size = ReadFile(in_file, banner, sizeof(banner));
 
 	if (size < 0) {
-		printf("Error: cannot read banner.bin.\n");
-		return -1;
+		printf("Warning: will use an empty banner!\n");
+		memset(banner, 0, sizeof(banner));
 	} else if (size != 0x80) {
 		printf("Error: wrong size of banner.bin.\n");
 		return -1;
@@ -477,15 +485,15 @@ int main(int argc, char **argv) {
 	int outsize;
 	int res;
 
-	if(argc!=2) {
-		printf("Usage: %s -d or %s -e\n",argv[0],argv[0]);
+	if(argc != 2) {
+		printf("Usage: %s -d or %s -e\n", argv[0], argv[0]);
 		return -1;
 	}
 
 	if (!strcmp(argv[1], "-d")) {
-		printf("Decrypt mode.\n");
+		printf("Decrypt mode...\n");
 
-		res = GetMSID();
+		res = GetMSID("prx/msid.bin");
 		if (res != 0) {
 			printf("Error: GetMSID() failed.\n");
 			return -1;
@@ -494,15 +502,15 @@ int main(int argc, char **argv) {
 		mkdir("dec", 0777);
 		DecryptDir("prx", "dec");
 	} else if (!strcmp(argv[1], "-e")) {
-		printf("Encrypt mode.\n");
+		printf("Encrypt mode...\n");
 
-		res = GetMSID();
+		res = GetMSID("dec/msid.bin");
 		if (res != 0) {
 			printf("Error: GetMSID() failed.\n");
 			return -1;
 		}
 
-		res = GetBanner();
+		res = GetBanner("dec/banner.bin");
 		if (res != 0) {
 			printf("Error: GetBanner() failed.\n");
 			return -1;
