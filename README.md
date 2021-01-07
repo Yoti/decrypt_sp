@@ -4,7 +4,9 @@ tool for decrypting and encrypting prx.enc
 
 ## credits
 
-SSL for encript code
+zecoxao for the original utility
+
+SSL for encrypt code
 
 mathieulh for original psp code
 
