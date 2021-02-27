@@ -30,3 +30,23 @@ will generate enc folder with files for your memstick
 rename enc folder to prx
 
 done
+
+## building
+
+```
+git clone https://github.com/Yoti/decrypt_sp
+
+git clone https://github.com/ProximaV/kirk-engine-full
+
+cd kirk-engine-full
+
+make
+
+cd ..
+
+cp ./kirk-engine-full/libkirk/libkirk.a ./decrypt_sp/lib/libkirk.a
+
+cd decrypt_sp
+
+make
+```
