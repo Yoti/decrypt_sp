@@ -1,1 +1,1 @@
-https://github.com/ProximaV/kirk-engine-full
+https://github.com/ProximaV/kirk-engine-full/commit/883f992c02f12639d66be64c42f9771ab5f93691

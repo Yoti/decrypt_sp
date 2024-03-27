@@ -40,6 +40,8 @@ git clone https://github.com/ProximaV/kirk-engine-full
 
 cd kirk-engine-full
 
+git checkout 883f992c02f12639d66be64c42f9771ab5f93691
+
 make
 
 cd ..

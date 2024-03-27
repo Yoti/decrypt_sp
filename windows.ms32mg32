@@ -1,0 +1,16 @@
+exe = decrypt_sp
+arc = -x86
+ext = .exe
+
+all:
+	gcc -Iinclude main.c -Llib -lkirk$(arc) -static -O2 -s -o $(exe)$(arc)$(ext)
+	strip $(exe)$(arc)$(ext)
+	gcc -v 2>&1 | grep Target > $(exe)$(arc).txt
+	gcc -v 2>&1 | grep "gcc " >> $(exe)$(arc).txt
+	unix2dos $(exe)$(arc).txt
+	file $(exe)$(arc)$(ext)
+	ldd "$(exe)$(arc)$(ext)"
+
+clean:
+	rm $(exe)$(arc).txt
+	rm $(exe)$(arc)$(ext)

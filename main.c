@@ -1,14 +1,14 @@
-#include <string.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <malloc.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdarg.h>
-#include <malloc.h>
-#include <dirent.h>
+#include <string.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <kirk_engine.h>
+#include "kirk_engine.h"
 
 unsigned char buffer[10000000] __attribute__((aligned(64)));
 
@@ -368,7 +368,7 @@ int EncryptFile(char *input, char *output) {
 
 	int outsize;
 
-	memset(buffer,0, sizeof(buffer));
+	memset(buffer, 0, sizeof(buffer));
 	int size = ReadFile(input, buffer+0x150, sizeof(buffer)-0x150);
 
 	if (size < 0) {
@@ -400,17 +400,32 @@ void DecryptDir(char *indir, char *outdir) {
 	dfd = opendir(indir);
 
 	if (dfd != NULL) {
+		#ifdef __MINGW32__
+		struct dirent *de;
+		#else
 		struct dirent de, *dep;
+		#endif
 
-		memset(&de, 0, sizeof(struct dirent));
+//		memset(&de, 0, sizeof(struct dirent));
+		memset(&de, 0, sizeof(de));
 
+		#ifdef __MINGW32__
+		while ((de = readdir(dfd)) != NULL) {
+			sprintf(input, "%s/%s", indir, de->d_name);
+			sprintf(output, "%s/%s", outdir, de->d_name);
+		#else
 		while (readdir_r(dfd, &de, &dep) == 0 && dep != NULL) {
 			sprintf(input, "%s/%s", indir, de.d_name);
 			sprintf(output, "%s/%s", outdir, de.d_name);
+		#endif
 
 			output[strlen(output)-4] = 0; // remove enc extension
 
+			#ifdef __MINGW32__
+			if ((de->d_name[0] != '.') && (strcmp(de->d_name, "msid.bin"))) {
+			#else
 			if ((de.d_name[0] != '.') && (strcmp(de.d_name, "msid.bin"))) {
+			#endif
 				if (DecryptFile(input, output) != 0) {
 					//
 				} else {
@@ -429,15 +444,30 @@ void EncryptDir(char *indir, char *outdir) {
 	dfd = opendir(indir);
 
 	if (dfd != NULL) {
+		#ifdef __MINGW32__
+		struct dirent *de;
+		#else
 		struct dirent de, *dep;
+		#endif
 
-		memset(&de, 0, sizeof(struct dirent));
+//		memset(&de, 0, sizeof(struct dirent));
+		memset(&de, 0, sizeof(de));
 
+		#ifdef __MINGW32__
+		while ((de = readdir(dfd)) != NULL) {
+			sprintf(input, "%s/%s", indir, de->d_name);
+			sprintf(output, "%s/%s.%s", outdir, de->d_name, "enc");
+		#else
 		while (readdir_r(dfd, &de, &dep) == 0 && dep != NULL) {
 			sprintf(input, "%s/%s", indir, de.d_name);
 			sprintf(output, "%s/%s.%s", outdir, de.d_name, "enc");
+		#endif
 
+			#ifdef __MINGW32__
+			if ((de->d_name[0] != '.') && (strcmp(de->d_name, "msid.bin")) && (strcmp(de->d_name, "banner.bin"))) {
+			#else
 			if ((de.d_name[0] != '.') && (strcmp(de.d_name, "msid.bin")) && (strcmp(de.d_name, "banner.bin"))) {
+			#endif
 				if (EncryptFile(input, output) != 0) {
 					//
 				} else {
@@ -498,8 +528,11 @@ int main(int argc, char **argv) {
 			printf("Error: GetMSID() failed.\n");
 			return -1;
 		}
-
+		#ifdef __MINGW32__
+		mkdir("dec");
+		#else
 		mkdir("dec", 0777);
+		#endif
 		DecryptDir("prx", "dec");
 	} else if (!strcmp(argv[1], "-e")) {
 		printf("Encrypt mode...\n");
@@ -515,8 +548,11 @@ int main(int argc, char **argv) {
 			printf("Error: GetBanner() failed.\n");
 			return -1;
 		}
-
+		#ifdef __MINGW32__
+		mkdir("enc");
+		#else
 		mkdir("enc", 0777);
+		#endif
 		EncryptDir("dec", "enc");
 	} else {
 		printf("Error: incorrect mode.\n");
